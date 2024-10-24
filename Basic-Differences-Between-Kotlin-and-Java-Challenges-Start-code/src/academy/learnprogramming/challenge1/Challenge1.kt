@@ -19,6 +19,6 @@ fun main(args: Array<String>) {
     println("""     1   
                  |  11
                  | 111
-                 |1111""".trimIndent())
+                 |1111""".trimMargin("1"))
 }
 

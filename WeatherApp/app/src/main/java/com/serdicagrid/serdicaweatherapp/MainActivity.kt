@@ -49,21 +49,25 @@ class MainActivity : ComponentActivity() {
             ActivityResultContracts.RequestPermission()
         ) { isGranted ->
             if (isGranted) {
+                // Permission granted, request location updates
                 requestLocationUpdates(locationManager) { location ->
                     userLocation = location
                 }
             } else {
+                // Permission denied, show a message
                 Toast.makeText(context, "Location permission is required to show your location on the map", Toast.LENGTH_SHORT).show()
             }
         }
 
-        // Check permission and request updates
+        // Check if permission is granted and request updates or launch permission request
         LaunchedEffect(Unit) {
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                // Permission already granted
                 requestLocationUpdates(locationManager) { location ->
                     userLocation = location
                 }
             } else {
+                // Permission not granted, request it
                 permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
             }
         }
@@ -78,6 +82,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
 
     // Helper function to request location updates
     private fun requestLocationUpdates(

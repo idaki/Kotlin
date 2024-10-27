@@ -21,6 +21,7 @@ import androidx.core.app.ActivityCompat
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
 import com.serdicagrid.serdicaweatherapp.ui.theme.SerdicaWeatherAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -67,18 +68,16 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        // Display Google Map
+        // Display Google Map with a marker at user's location
         GoogleMap(modifier = Modifier.fillMaxSize()) {
             userLocation?.let { location ->
                 Marker(
-                    position = location,
+                    state = MarkerState(position = location),
                     title = "Your Location"
                 )
             }
         }
     }
-
-
 
     // Helper function to request location updates
     private fun requestLocationUpdates(

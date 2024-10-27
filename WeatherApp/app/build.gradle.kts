@@ -1,4 +1,4 @@
-import org.jetbrains.kotlin.konan.properties.Properties
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -18,17 +18,20 @@ android {
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // Load `local.properties` manually
+        // Load `local.properties` for secure API key access
         val localProperties = Properties()
         val localPropertiesFile = rootProject.file("local.properties")
         if (localPropertiesFile.exists()) {
+            localProperties.load(localPropertiesFile.inputStream())
 
-            // Using Gradle property for Google Maps API key
             val googleMapsApiKey = localProperties.getProperty("GOOGLE_MAPS_API_KEY") ?: ""
-            buildConfigField("String", "GOOGLE_MAPS_API_KEY", "\"$googleMapsApiKey\"")
-            manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = googleMapsApiKey
+            val openWeatherMapApiKey = localProperties.getProperty("OPEN_WEATHER_MAP_API_KEY") ?: ""
 
-            println("Google Maps API Key: $googleMapsApiKey")
+            buildConfigField("String", "GOOGLE_MAPS_API_KEY", "\"$googleMapsApiKey\"")
+            buildConfigField("String", "OPEN_WEATHER_MAP_API_KEY", "\"$openWeatherMapApiKey\"")
+
+            manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = googleMapsApiKey
+            manifestPlaceholders["OPEN_WEATHER_MAP_API_KEY"] = openWeatherMapApiKey
         }
 
         buildTypes {

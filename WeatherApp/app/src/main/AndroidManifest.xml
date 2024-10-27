@@ -15,12 +15,10 @@
         android:theme="@style/Theme.SerdicaWeatherApp"
         tools:targetApi="31">
 
-<!--        <meta-data-->
-<!--            android:name="com.google.android.geo.API_KEY"-->
-<!--            android:value="${GOOGLE_MAPS_API_KEY}" />-->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyAeTYjMeAolp2srWcfsbt5xUnX-gWlHrW8" />
+            android:value="${GOOGLE_MAPS_API_KEY}" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -11,7 +11,6 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.maps.model.LatLng
 
-
 class LocationService(private val context: Context) {
 
     private val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -19,6 +18,11 @@ class LocationService(private val context: Context) {
     // Checks if location permission is granted
     fun hasLocationPermission(): Boolean {
         return ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+    }
+
+    // Checks if location services are enabled
+    fun isLocationEnabled(): Boolean {
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
     // Requests location updates

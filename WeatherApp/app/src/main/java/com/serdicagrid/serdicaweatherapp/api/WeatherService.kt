@@ -18,6 +18,8 @@ class WeatherService {
         val url = "https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&appid=$apiKey&units=metric"
 
         return withContext(Dispatchers.IO) {
+
+
             repeat(retries) { attempt ->
                 try {
                     val request = Request.Builder().url(url).get().build()

@@ -1,13 +1,13 @@
 package com.serdicagrid.serdicaweatherapp.ui
 
 import MainScreen
+import android.Manifest
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import android.Manifest
-import android.widget.Toast
 import com.serdicagrid.serdicaweatherapp.api.LocationService
 import com.serdicagrid.serdicaweatherapp.api.WeatherService
 import com.serdicagrid.serdicaweatherapp.data.WeatherRepository
@@ -21,25 +21,27 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Initialize permission launcher
+        // Initialize LocationService
+        locationService = LocationService(applicationContext)
+
+        // Handle location permission request
         locationPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            if (!granted) {
-                Toast.makeText(this, "Location permission is required for the app to function", Toast.LENGTH_LONG).show()
+            if (granted) {
+                locationService.requestLocationUpdates() // Start location updates if permission granted
+            } else {
+                Toast.makeText(this, "Location permission is required for app functionality", Toast.LENGTH_LONG).show()
             }
         }
 
-        // Initialize LocationService with applicationContext
-        locationService = LocationService(applicationContext)
-
-        // Check location permission
+        // Request permission if not granted
         if (!locationService.hasLocationPermission()) {
             locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        } else {
+            locationService.requestLocationUpdates() // Start updates if permission is already granted
         }
 
-        // Initialize WeatherRepository
-        val weatherService = WeatherService()
-        val repository = WeatherRepository(weatherService)
-
+        // Initialize WeatherRepository and set up content
+        val repository = WeatherRepository(WeatherService())
         setContent {
             SerdicaWeatherAppTheme {
                 MainScreen(repository, locationService)

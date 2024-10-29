@@ -1,4 +1,4 @@
-import android.widget.Toast
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -7,6 +7,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import android.widget.Toast
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -18,21 +19,19 @@ import com.serdicagrid.serdicaweatherapp.api.LocationService
 @Composable
 fun MapScreen(locationService: LocationService, modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    var userLocation by remember { locationService.locationState }
+    val userLocation by locationService.locationState
     val isLocationEnabled by remember { mutableStateOf(locationService.isLocationEnabled()) }
 
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition(LatLng(0.0, 0.0), 10f, 0f, 0f)
     }
 
+    // Call requestLocationUpdates without any parameters
     LaunchedEffect(Unit) {
         if (!isLocationEnabled) {
             Toast.makeText(context, "Please enable location services to use the map", Toast.LENGTH_LONG).show()
         } else if (locationService.hasLocationPermission()) {
-            locationService.requestLocationUpdates { location ->
-                userLocation = location
-                cameraPositionState.position = CameraPosition(location, 15f, 0f, 0f)
-            }
+            locationService.requestLocationUpdates()
         } else {
             Toast.makeText(context, "Location permission is not granted. Please enable it.", Toast.LENGTH_SHORT).show()
         }
@@ -55,6 +54,7 @@ fun MapScreen(locationService: LocationService, modifier: Modifier = Modifier) {
                         state = MarkerState(position = location),
                         title = "Your Location"
                     )
+                    cameraPositionState.position = CameraPosition(location, 15f, 0f, 0f)
                 }
             }
         } else {

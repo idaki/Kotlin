@@ -1,5 +1,3 @@
-package com.serdicagrid.serdicaweatherapp.ui
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -7,21 +5,29 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.serdicagrid.serdicaweatherapp.api.LocationService
 import com.serdicagrid.serdicaweatherapp.data.WeatherRepository
 import com.serdicagrid.serdicaweatherapp.model.WeatherData
-
+import com.serdicagrid.serdicaweatherapp.ui.WeatherUIState
 
 @Composable
-fun ForecastScreen(repository: WeatherRepository, modifier: Modifier = Modifier) {
+fun ForecastScreen(
+    repository: WeatherRepository,
+    locationService: LocationService,
+    modifier: Modifier = Modifier
+) {
     var weatherUIState by remember { mutableStateOf<WeatherUIState>(WeatherUIState.Loading) }
+    val locationState by locationService.locationState
 
-    LaunchedEffect(Unit) {
-        weatherUIState = try {
-            repository.getCurrentWeather(lat = 42.6977, lon = 23.3219)?.let {
-                WeatherUIState.Success(it)
-            } ?: WeatherUIState.Error("Failed to fetch weather data")
-        } catch (e: Exception) {
-            WeatherUIState.Error("An error occurred: ${e.localizedMessage}")
+    LaunchedEffect(locationState) {
+        locationState?.let { location ->
+            weatherUIState = try {
+                repository.getCurrentWeather(lat = location.latitude, lon = location.longitude)?.let {
+                    WeatherUIState.Success(it)
+                } ?: WeatherUIState.Error("Failed to fetch weather data")
+            } catch (e: Exception) {
+                WeatherUIState.Error("An error occurred: ${e.localizedMessage}")
+            }
         }
     }
 

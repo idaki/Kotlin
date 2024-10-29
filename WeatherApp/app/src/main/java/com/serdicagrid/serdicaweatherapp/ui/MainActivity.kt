@@ -16,6 +16,7 @@ import com.serdicagrid.serdicaweatherapp.ui.theme.SerdicaWeatherAppTheme
 class MainActivity : ComponentActivity() {
 
     private lateinit var locationPermissionLauncher: ActivityResultLauncher<String>
+    private lateinit var locationService: LocationService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,18 +28,22 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+        // Initialize LocationService with applicationContext
+        locationService = LocationService(applicationContext)
+
+        // Check location permission
+        if (!locationService.hasLocationPermission()) {
+            locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+
+        // Initialize WeatherRepository
         val weatherService = WeatherService()
         val repository = WeatherRepository(weatherService)
 
         setContent {
             SerdicaWeatherAppTheme {
-                MainScreen(repository)
+                MainScreen(repository, locationService)
             }
-        }
-
-        // Request location permission
-        if (!LocationService(this).hasLocationPermission()) {
-            locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
     }
 }

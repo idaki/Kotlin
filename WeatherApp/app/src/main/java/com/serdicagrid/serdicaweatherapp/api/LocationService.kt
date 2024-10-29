@@ -6,12 +6,14 @@ import android.content.pm.PackageManager
 import android.location.LocationListener
 import android.location.LocationManager
 import android.widget.Toast
+import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.maps.model.LatLng
 
-class LocationService(private val context: Context) {
+class LocationService(private val context: Context) {  // Accepts Context instead of Application
 
     private val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    val locationState = mutableStateOf<LatLng?>(null)
 
     fun hasLocationPermission(): Boolean {
         return ActivityCompat.checkSelfPermission(
@@ -35,7 +37,6 @@ class LocationService(private val context: Context) {
         }
 
         try {
-            // Explicitly check permission and handle potential SecurityException
             if (hasLocationPermission()) {
                 locationManager.requestLocationUpdates(
                     LocationManager.GPS_PROVIDER, 1000L, 10f, locationListener

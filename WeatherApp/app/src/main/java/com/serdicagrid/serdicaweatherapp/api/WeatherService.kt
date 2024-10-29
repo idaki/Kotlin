@@ -4,54 +4,43 @@ import com.serdicagrid.serdicaweatherapp.BuildConfig
 import com.serdicagrid.serdicaweatherapp.model.WeatherData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import org.json.JSONObject
-import java.net.HttpURLConnection
-import java.net.URL
-import javax.net.ssl.HttpsURLConnection
+import java.io.IOException
 
 class WeatherService {
 
     private val apiKey = BuildConfig.OPEN_WEATHER_MAP_API_KEY
+    private val client = OkHttpClient()
 
-    /**
-     * Fetches current weather data for a specific latitude and longitude.
-     * Returns a [WeatherData] object if successful, or null if an error occurs.
-     */
-    suspend fun fetchCurrentWeather(lat: Double, lon: Double): WeatherData? {
-        val urlString = "https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&appid=$apiKey&units=metric"
-        var connection: HttpsURLConnection? = null
+    suspend fun fetchCurrentWeather(lat: Double, lon: Double, retries: Int = 3): WeatherData? {
+        val url = "https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&appid=$apiKey&units=metric"
+
         return withContext(Dispatchers.IO) {
-            try {
-                val url = URL(urlString)
-                connection = url.openConnection() as HttpsURLConnection
-                connection.apply {
-                    requestMethod = "GET"
-                    connectTimeout = 5000
-                    readTimeout = 5000
+            repeat(retries) { attempt ->
+                try {
+                    val request = Request.Builder().url(url).get().build()
+                    client.newCall(request).execute().use { response ->
+                        if (response.isSuccessful) {
+                            response.body?.string()?.let { responseBody ->
+                                return@withContext parseCurrentWeatherData(responseBody)
+                            }
+                        } else {
+                            println("Request failed with status: ${response.code}")
+                        }
+                    }
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                    if (attempt == retries - 1) {
+                        return@withContext null
+                    }
                 }
-                connection.connect()
-
-                if (connection.responseCode == HttpURLConnection.HTTP_OK) {
-                    val response = connection.inputStream.bufferedReader().use { it.readText() }
-                    parseCurrentWeatherData(response)
-                } else {
-                    println("Error: ${connection.responseCode} - ${connection.responseMessage}")
-                    null
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                null
-            } finally {
-                connection?.disconnect()
             }
+            null // Returns null if all retries fail
         }
     }
 
-    /**
-     * Parses JSON response from the current weather endpoint.
-     * @param data JSON string from the API response.
-     * @return A [WeatherData] object with parsed weather information.
-     */
     private fun parseCurrentWeatherData(data: String): WeatherData? {
         return try {
             val jsonObject = JSONObject(data)
@@ -65,7 +54,7 @@ class WeatherService {
                 timestamp = jsonObject.getLong("dt")
             )
         } catch (e: Exception) {
-            println("Error parsing JSON: ${e.message}")
+            e.printStackTrace()
             null
         }
     }

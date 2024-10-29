@@ -7,6 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.serdicagrid.serdicaweatherapp.data.WeatherRepository
+import com.serdicagrid.serdicaweatherapp.ui.ForecastScreen
 import com.serdicagrid.serdicaweatherapp.ui.MapScreen
 
 @Composable

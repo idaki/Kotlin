@@ -5,5 +5,4 @@ data class WeatherData(
     val humidity: Int,
     val condition: String,
     val timestamp: Long? = null
-
 )

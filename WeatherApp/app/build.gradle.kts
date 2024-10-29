@@ -1,3 +1,4 @@
+// build.gradle.kts
 import java.util.Properties
 
 plugins {
@@ -73,9 +74,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-
-    // Material for BottomNavigation and other components
-    implementation(libs.androidx.compose.material)
+    implementation(libs.androidx.compose.material)  // Compose Material components
+    implementation(libs.okhttp) // OkHttp for networking
 
     // Material Icons
     implementation(libs.androidx.compose.material.icons.core)

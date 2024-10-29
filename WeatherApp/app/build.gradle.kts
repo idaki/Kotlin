@@ -1,6 +1,5 @@
 import java.util.Properties
 
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -31,6 +30,7 @@ android {
             buildConfigField("String", "GOOGLE_MAPS_API_KEY", "\"$googleMapsApiKey\"")
             buildConfigField("String", "OPEN_WEATHER_MAP_API_KEY", "\"$openWeatherMapApiKey\"")
 
+            // Add both keys to manifestPlaceholders
             manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = googleMapsApiKey
             manifestPlaceholders["OPEN_WEATHER_MAP_API_KEY"] = openWeatherMapApiKey
         }
@@ -60,11 +60,13 @@ android {
         buildConfig = true
     }
 }
+
 dependencies {
+    // Core libraries
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.lifecycle.livedata.ktx) // Updated for LiveData support
-    implementation(libs.androidx.lifecycle.runtime.compose) // Added for Compose integration
+    implementation(libs.androidx.lifecycle.livedata.ktx) // LiveData support
+    implementation(libs.androidx.lifecycle.runtime.compose) // Compose integration
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
@@ -79,6 +81,7 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.core)
     implementation(libs.androidx.compose.material.icons.extended)
 
+    // Testing libraries
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -87,6 +90,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    // Google Play and other libraries
     implementation(libs.play.services.location)
     implementation(libs.accompanist.permissions)
     implementation(libs.google.maps.compose)

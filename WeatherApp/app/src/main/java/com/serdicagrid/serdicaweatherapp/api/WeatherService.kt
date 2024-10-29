@@ -2,92 +2,71 @@ package com.serdicagrid.serdicaweatherapp.api
 
 import com.serdicagrid.serdicaweatherapp.BuildConfig
 import com.serdicagrid.serdicaweatherapp.model.WeatherData
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
-import java.io.BufferedReader
-import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
+import javax.net.ssl.HttpsURLConnection
 
 class WeatherService {
 
     private val apiKey = BuildConfig.OPEN_WEATHER_MAP_API_KEY
 
-    // Fetches current weather data
-    fun fetchCurrentWeather(lat: Double, lon: Double): WeatherData? {
+    /**
+     * Fetches current weather data for a specific latitude and longitude.
+     * Returns a [WeatherData] object if successful, or null if an error occurs.
+     */
+    suspend fun fetchCurrentWeather(lat: Double, lon: Double): WeatherData? {
         val urlString = "https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&appid=$apiKey&units=metric"
-        return getWeatherData(urlString)?.let { parseCurrentWeatherData(it) }
-    }
-
-    // Fetches forecast data
-    fun fetchForecast(lat: Double, lon: Double): List<WeatherData>? {
-        val urlString = "https://api.openweathermap.org/data/2.5/forecast?lat=$lat&lon=$lon&appid=$apiKey&units=metric"
-        return getWeatherData(urlString)?.let { parseForecastData(it) }
-    }
-
-    // Makes HTTP request and retrieves data
-    private fun getWeatherData(urlString: String): String? {
-        return try {
-            val url = URL(urlString)
-            val urlConnection = url.openConnection() as HttpURLConnection
-            urlConnection.requestMethod = "GET"
-            urlConnection.connectTimeout = 5000
-            urlConnection.readTimeout = 5000
-
-            val responseCode = urlConnection.responseCode
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                val reader = BufferedReader(InputStreamReader(urlConnection.inputStream))
-                val response = StringBuilder()
-                var line: String?
-                while (reader.readLine().also { line = it } != null) {
-                    response.append(line)
+        var connection: HttpsURLConnection? = null
+        return withContext(Dispatchers.IO) {
+            try {
+                val url = URL(urlString)
+                connection = url.openConnection() as HttpsURLConnection
+                connection.apply {
+                    requestMethod = "GET"
+                    connectTimeout = 5000
+                    readTimeout = 5000
                 }
-                reader.close()
-                response.toString()
-            } else {
+                connection.connect()
+
+                if (connection.responseCode == HttpURLConnection.HTTP_OK) {
+                    val response = connection.inputStream.bufferedReader().use { it.readText() }
+                    parseCurrentWeatherData(response)
+                } else {
+                    println("Error: ${connection.responseCode} - ${connection.responseMessage}")
+                    null
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
                 null
+            } finally {
+                connection?.disconnect()
             }
+        }
+    }
+
+    /**
+     * Parses JSON response from the current weather endpoint.
+     * @param data JSON string from the API response.
+     * @return A [WeatherData] object with parsed weather information.
+     */
+    private fun parseCurrentWeatherData(data: String): WeatherData? {
+        return try {
+            val jsonObject = JSONObject(data)
+            val main = jsonObject.getJSONObject("main")
+            val weather = jsonObject.getJSONArray("weather").getJSONObject(0)
+
+            WeatherData(
+                temperature = main.getDouble("temp"),
+                humidity = main.getInt("humidity"),
+                condition = weather.getString("main"),
+                timestamp = jsonObject.getLong("dt")
+            )
         } catch (e: Exception) {
-            e.printStackTrace()
+            println("Error parsing JSON: ${e.message}")
             null
         }
-    }
-
-    // Parses current weather data JSON response
-    private fun parseCurrentWeatherData(data: String): WeatherData {
-        val json = JSONObject(data)
-        val main = json.getJSONObject("main")
-        val weatherArray = json.getJSONArray("weather")
-        val weather = weatherArray.getJSONObject(0)
-
-        return WeatherData(
-            temperature = main.getDouble("temp"),
-            humidity = main.getInt("humidity"),
-            condition = weather.getString("main")
-        )
-    }
-
-    // Parses forecast data JSON response
-    private fun parseForecastData(data: String): List<WeatherData> {
-        val json = JSONObject(data)
-        val list = json.getJSONArray("list")
-
-        val forecastList = mutableListOf<WeatherData>()
-        for (i in 0 until list.length()) {
-            val item = list.getJSONObject(i)
-            val main = item.getJSONObject("main")
-            val weatherArray = item.getJSONArray("weather")
-            val weather = weatherArray.getJSONObject(0)
-
-            forecastList.add(
-                WeatherData(
-                    temperature = main.getDouble("temp"),
-                    humidity = main.getInt("humidity"),
-                    condition = weather.getString("main"),
-                    timestamp = item.getLong("dt")
-                )
-            )
-        }
-
-        return forecastList
     }
 }

@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Permissions for location and internet -->
+    <!-- Location and Internet Permissions -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -18,12 +18,10 @@
         android:theme="@style/Theme.SerdicaWeatherApp"
         tools:targetApi="31">
 
-        <!-- Google Maps API Key -->
+        <!-- API Keys for Google Maps and OpenWeatherMap -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${GOOGLE_MAPS_API_KEY}" />
-
-        <!-- OpenWeatherMap API Key -->
         <meta-data
             android:name="com.openweathermap.API_KEY"
             android:value="${OPEN_WEATHER_MAP_API_KEY}" />

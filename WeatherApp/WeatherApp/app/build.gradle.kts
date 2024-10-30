@@ -1,10 +1,13 @@
-import java.util.Properties
+// build.gradle.kts
+
+import java.util.Properties // Add this import statement
 
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
+
 
 android {
     namespace = "com.serdicagrid.serdicaweatherapp"
@@ -27,10 +30,9 @@ android {
             val googleMapsApiKey = localProperties.getProperty("GOOGLE_MAPS_API_KEY") ?: ""
             val openWeatherMapApiKey = localProperties.getProperty("OPEN_WEATHER_MAP_API_KEY") ?: ""
 
+            // Add keys to BuildConfig and manifestPlaceholders
             buildConfigField("String", "GOOGLE_MAPS_API_KEY", "\"$googleMapsApiKey\"")
             buildConfigField("String", "OPEN_WEATHER_MAP_API_KEY", "\"$openWeatherMapApiKey\"")
-
-            // Add both keys to manifestPlaceholders
             manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = googleMapsApiKey
             manifestPlaceholders["OPEN_WEATHER_MAP_API_KEY"] = openWeatherMapApiKey
         }
@@ -58,44 +60,42 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+        viewBinding = true
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.composeBom.get() // Use version from TOML
+        kotlinCompilerExtensionVersion = libs.versions.composeBom.get()
     }
 }
 
 dependencies {
-    // Core libraries
+    // Core Android libraries
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.activity.compose)
+
+    // Compose UI and Material
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.compose.material)
-    implementation(libs.okhttp)
-
-    // Material Icons
     implementation(libs.androidx.compose.material.icons.core)
     implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.androidx.ui.viewbinding)
 
-    // Testing libraries
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
+    // Networking
+    implementation(libs.okhttp)
 
-    // Google Play and other libraries
-    implementation(libs.play.services.location)
+    // Accompanist libraries for additional Compose functionality
     implementation(libs.accompanist.permissions)
+
+    // Google Play services and Maps
+    implementation(libs.play.services.location)
     implementation(libs.google.maps.compose)
     implementation(libs.play.services.maps)
 
@@ -103,4 +103,15 @@ dependencies {
     implementation(libs.navigation.fragment.ktx)
     implementation(libs.navigation.ui.ktx)
     implementation(libs.navigation.compose)
+
+    // Testing libraries
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+
+    // Debugging tools for Compose
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
 }

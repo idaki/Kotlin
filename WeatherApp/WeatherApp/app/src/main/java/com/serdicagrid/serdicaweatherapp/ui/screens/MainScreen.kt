@@ -10,6 +10,8 @@ import androidx.compose.ui.Modifier
 import com.serdicagrid.serdicaweatherapp.api.LocationService
 import com.serdicagrid.serdicaweatherapp.data.WeatherRepository
 import com.serdicagrid.serdicaweatherapp.model.WeatherResponse
+import com.serdicagrid.serdicaweatherapp.ui.screens.ForecastContent
+import com.serdicagrid.serdicaweatherapp.ui.screens.MapScreen
 
 @Composable
 fun MainScreen(repository: WeatherRepository, locationService: LocationService) {

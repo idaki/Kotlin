@@ -19,7 +19,7 @@ class WelcomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the welcome fragment layout
-        val view = inflater.inflate(R.layout.fragment_welcome, container, false)
+        val view = inflater.inflate(R.layout.welcome_screen_fragment_layout, container, false)
 
         // Automatically remove fragment after 3 seconds
         viewLifecycleOwner.lifecycleScope.launch {

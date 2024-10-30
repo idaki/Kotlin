@@ -1,6 +1,5 @@
 package com.serdicagrid.serdicaweatherapp.ui
 
-import MainScreen
 import android.Manifest
 import android.os.Bundle
 import android.widget.Toast
@@ -12,7 +11,9 @@ import androidx.compose.runtime.*
 import com.serdicagrid.serdicaweatherapp.api.LocationService
 import com.serdicagrid.serdicaweatherapp.api.WeatherService
 import com.serdicagrid.serdicaweatherapp.data.WeatherRepository
+import com.serdicagrid.serdicaweatherapp.ui.screens.MainScreen
 import com.serdicagrid.serdicaweatherapp.ui.screens.WelcomeScreen
+
 import com.serdicagrid.serdicaweatherapp.ui.theme.SerdicaWeatherAppTheme
 import kotlinx.coroutines.delay
 
@@ -23,25 +24,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Initialize LocationService
         locationService = LocationService(applicationContext)
-
-        // Handle location permission request
-        locationPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            if (granted) {
-                locationService.requestLocationUpdates()
-            } else {
-                Toast.makeText(this, "Location permission is required for app functionality", Toast.LENGTH_LONG).show()
-            }
-        }
-
-        // Request permission if not granted
-        if (!locationService.hasLocationPermission()) {
-            locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-        } else {
-            locationService.requestLocationUpdates()
-        }
+        setupLocationPermission()
 
         setContent {
             SerdicaWeatherAppTheme {
@@ -59,6 +43,18 @@ class MainActivity : ComponentActivity() {
                     MainScreen(repository, locationService)
                 }
             }
+        }
+    }
+
+    private fun setupLocationPermission() {
+        locationPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) locationService.requestLocationUpdates()
+            else Toast.makeText(this, "Location permission is required for app functionality", Toast.LENGTH_LONG).show()
+        }
+        if (!locationService.hasLocationPermission()) {
+            locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        } else {
+            locationService.requestLocationUpdates()
         }
     }
 }

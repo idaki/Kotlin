@@ -1,3 +1,5 @@
+package com.serdicagrid.serdicaweatherapp.ui.screens
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme

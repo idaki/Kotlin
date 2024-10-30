@@ -11,6 +11,7 @@ import com.serdicagrid.serdicaweatherapp.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+
 class WelcomeFragment : Fragment() {
 
     override fun onCreateView(

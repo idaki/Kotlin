@@ -17,18 +17,13 @@ class LocationService(private val context: Context) {
     private val _locationState = MutableStateFlow<LatLng?>(null)
     val locationState: StateFlow<LatLng?> = _locationState
 
-    fun hasLocationPermission(): Boolean {
-        return ActivityCompat.checkSelfPermission(
-            context, Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-    }
+    fun hasLocationPermission() = ActivityCompat.checkSelfPermission(
+        context, Manifest.permission.ACCESS_FINE_LOCATION
+    ) == PackageManager.PERMISSION_GRANTED
 
-    fun isLocationEnabled(): Boolean {
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
-                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-    }
+    fun isLocationEnabled() = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+            locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
 
-    // Requests location updates and updates locationState with the new location
     fun requestLocationUpdates() {
         if (!hasLocationPermission()) {
             Toast.makeText(context, "Location permission is required", Toast.LENGTH_SHORT).show()
@@ -44,12 +39,10 @@ class LocationService(private val context: Context) {
                 LocationManager.GPS_PROVIDER, 1000L, 10f, locationListener
             )
         } catch (e: SecurityException) {
-            e.printStackTrace()
             Toast.makeText(context, "Location access denied.", Toast.LENGTH_SHORT).show()
         }
     }
 
-    // Stops location updates to prevent memory leaks
     fun stopLocationUpdates(locationListener: LocationListener) {
         if (hasLocationPermission()) {
             locationManager.removeUpdates(locationListener)

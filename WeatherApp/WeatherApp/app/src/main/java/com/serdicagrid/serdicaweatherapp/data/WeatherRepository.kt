@@ -4,9 +4,7 @@ import com.serdicagrid.serdicaweatherapp.api.WeatherService
 import com.serdicagrid.serdicaweatherapp.model.WeatherResponse
 
 class WeatherRepository(private val weatherService: WeatherService) {
-
     suspend fun getCurrentWeather(lat: Double, lon: Double): WeatherResponse? {
-        // Fetch current weather data and return it as WeatherResponse
         return weatherService.fetchCurrentWeather(lat, lon)
     }
 }

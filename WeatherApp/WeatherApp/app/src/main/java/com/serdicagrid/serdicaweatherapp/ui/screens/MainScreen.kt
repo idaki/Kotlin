@@ -1,3 +1,5 @@
+package com.serdicagrid.serdicaweatherapp.ui.screens
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Checkroom
@@ -18,23 +20,15 @@ fun MainScreen(repository: WeatherRepository, locationService: LocationService) 
     var selectedScreen by remember { mutableStateOf(Screen.Forecast) }
     var weatherData by remember { mutableStateOf<WeatherResponse?>(null) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
-    var loading by remember { mutableStateOf(true) } // Track loading state
-
-    // Collect location updates
     val locationState by locationService.locationState.collectAsState(initial = null)
 
-    // Fetch weather data when location is available
     LaunchedEffect(locationState) {
         locationState?.let { loc ->
-            loading = true // Set loading to true before fetching
             try {
                 weatherData = repository.getCurrentWeather(lat = loc.latitude, lon = loc.longitude)
                 errorMessage = null
             } catch (e: Exception) {
                 errorMessage = "Failed to fetch weather data: ${e.localizedMessage}"
-                weatherData = null // Reset weather data on error
-            } finally {
-                loading = false // Set loading to false after fetch attempt
             }
         }
     }
@@ -43,16 +37,7 @@ fun MainScreen(repository: WeatherRepository, locationService: LocationService) 
         bottomBar = { BottomNavigationBar(selectedScreen) { selectedScreen = it } }
     ) { paddingValues ->
         when (selectedScreen) {
-            Screen.Forecast -> {
-                if (loading) {
-                    // Use Box to center the loading indicator
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator() // Centered loading indicator
-                    }
-                } else {
-                    ForecastContent(weatherData, errorMessage, Modifier.padding(paddingValues))
-                }
-            }
+            Screen.Forecast -> ForecastContent(weatherData, errorMessage, Modifier.padding(paddingValues))
             Screen.Map -> MapScreen(locationService, Modifier.padding(paddingValues))
             Screen.Clothing -> ClothingRecommendationScreen(weatherData, Modifier.padding(paddingValues))
         }
